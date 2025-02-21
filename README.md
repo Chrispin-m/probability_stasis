@@ -54,7 +54,6 @@ Abstract base class for models. Must implement:
 - Supports multiple models simultaneously
 - Rolling window of predictions
 - Automatic stabilization when thresholds are exceeded
-```
 
 #### `example_usage.py`
 ```python
