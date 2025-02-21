@@ -56,7 +56,7 @@ Abstract base class for models. Must implement:
 - Automatic stabilization when thresholds are exceeded
 ```
 
-#### `probability_stasis/examples/example_usage.py`
+#### `example_usage.py`
 ```python
 import numpy as np
 from probability_stasis import StasisFilter
