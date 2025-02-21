@@ -8,23 +8,46 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: '3.x'
+          cache: 'pip'
 
-      - name: Install dependencies
+      - name: Install build dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install build
+          pip install build twine wheel
 
       - name: Build package
-        run: python -m build
+        run: |
+          python -m build
+          python -m twine check dist/*
 
-      - name: Publish package
-        uses: pypa/gh-action-pypi-publish@release-v1
+      - name: Publish package to PyPI
+        if: success()
+        uses: pypa/gh-action-pypi-publish@release-v1.8.14
         with:
+          user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
+          repository-url: https://upload.pypi.org/legacy/
+          skip-existing: true
+          verbose: true
+
+      - name: Notify on failure
+        if: failure()  
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Package publication failed. Check the logs for details.'
+            })
